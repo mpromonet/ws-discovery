@@ -14,7 +14,16 @@ void sighandler(int sig)
 	stop = true;
 }
 
-void sendHello(soap* serv)
+void mainloop(soap* serv)
+{
+	int res = soap_wsdd_listen(serv, -1000);
+	if (res != SOAP_OK)
+	{
+		soap_print_fault(serv, stderr);
+	}		
+}
+
+void sendHello()
 {
 	struct soap* soap = soap_new();
 	printf("call soap_wsdd_Hello\n");
@@ -33,18 +42,10 @@ void sendHello(soap* serv)
 	{
 		soap_print_fault(soap, stderr);
 	}
-	
-	// listen answers
-	res = soap_wsdd_listen(serv, -1000);
-
-	if (res != SOAP_OK)
-	{
-		soap_print_fault(serv, stderr);
-	}	
-	soap_end(soap);
+	soap_end(soap);	
 }
 
-void sendBye(soap* serv)
+void sendBye()
 {
 	struct soap* soap = soap_new();
 	printf("call soap_wsdd_Bye\n");
@@ -58,14 +59,6 @@ void sendBye(soap* serv)
 	  NULL,
 	  _xaddr,
           _metadataVersion);
-	if (res != SOAP_OK)
-	{
-		soap_print_fault(soap, stderr);
-	}
-
-	// listen answers
-	res = soap_wsdd_listen(serv, -1000);
-
 	if (res != SOAP_OK)
 	{
 		soap_print_fault(soap, stderr);
@@ -95,7 +88,8 @@ int main(int argc, char** argv)
 		std::cout << "group membership failed:" << strerror(errno) << std::endl;		
 	}		
 
-	sendHello(serv);
+	sendHello();
+	mainloop(serv);
 
 	signal(SIGINT, &sighandler);
 	while (!stop)
@@ -103,7 +97,8 @@ int main(int argc, char** argv)
 		int res = soap_wsdd_listen(serv, -500000);
 	}
 
-	sendBye(serv);
+	sendBye();
+	mainloop(serv);
 	
 	soap_end(serv);
 

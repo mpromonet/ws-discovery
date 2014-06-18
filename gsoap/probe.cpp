@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 	{
 		soap_print_fault(soap, stderr);
 	}
-
+	
 	// listen answers
 	res = soap_wsdd_listen(serv, 5);
 	if (res != SOAP_OK)
