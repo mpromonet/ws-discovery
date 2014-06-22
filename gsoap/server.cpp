@@ -3,6 +3,8 @@
 #include "gen/wsdd.nsmap"
 #include "wsddapi.h"
 
+const char* host = "239.255.255.250";	
+int port = 3702;
 const int _metadataVersion = 1;
 const char* _xaddr="http://localhost/service";
 const char* _type="\"http://schemas.xmlsoap.org/ws/2006/02/devprof\":device";
@@ -14,18 +16,14 @@ void sighandler(int sig)
 	stop = true;
 }
 
-void mainloop(soap* serv)
-{
-	int res = soap_wsdd_listen(serv, -1000);
-	if (res != SOAP_OK)
-	{
-		soap_print_fault(serv, stderr);
-	}		
+int mainloop(soap* serv)
+{		
+	return soap_wsdd_listen(serv, -1000000);
 }
 
 void sendHello()
 {
-	struct soap* soap = soap_new();
+	struct soap* soap = soap_new1(SOAP_IO_UDP);
 	printf("call soap_wsdd_Hello\n");
 	int res = soap_wsdd_Hello(soap,
 	  SOAP_WSDD_ADHOC,      // mode
@@ -47,7 +45,7 @@ void sendHello()
 
 void sendBye()
 {
-	struct soap* soap = soap_new();
+	struct soap* soap = soap_new1(SOAP_IO_UDP);
 	printf("call soap_wsdd_Bye\n");
 	int res = soap_wsdd_Bye(soap,
 	  SOAP_WSDD_ADHOC,      // mode
@@ -68,11 +66,7 @@ void sendBye()
 	
 int main(int argc, char** argv)
 {
-	const char* host = "239.255.255.250";	
-	int port = 3702;
-	
-	// create answer listener
-	struct soap* serv = soap_new1(SOAP_IO_UDP); 
+	struct soap* serv = soap_new1(SOAP_IO_UDP | SOAP_IO_KEEPALIVE); 
 	serv->bind_flags=SO_REUSEADDR;
 	serv->connect_flags = SO_BROADCAST; 
 	if (!soap_valid_socket(soap_bind(serv, NULL, port, 1000)))
@@ -80,27 +74,26 @@ int main(int argc, char** argv)
 		soap_print_fault(serv, stderr);
 		exit(1);
 	}	
+
 	ip_mreq mcast; 
 	mcast.imr_multiaddr.s_addr = inet_addr(host);
 	mcast.imr_interface.s_addr = htonl(INADDR_ANY);
 	if (setsockopt(serv->master, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mcast, sizeof(mcast))<0) 
 	{
 		std::cout << "group membership failed:" << strerror(errno) << std::endl;		
-	}		
-
+	}	
+	
 	sendHello();
 	mainloop(serv);
 
 	signal(SIGINT, &sighandler);
 	while (!stop)
 	{
-		int res = soap_wsdd_listen(serv, -500000);
+		mainloop(serv);
 	}
 
 	sendBye();
 	mainloop(serv);
-	
-	soap_end(serv);
 
 	return 0;
 }
