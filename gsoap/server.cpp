@@ -8,6 +8,7 @@ int port = 3702;
 const int _metadataVersion = 1;
 const char* _xaddr="http://localhost/service";
 const char* _type="\"http://schemas.xmlsoap.org/ws/2006/02/devprof\":device";
+const char* _endpoint="urn";
 
 bool stop = false;
 void sighandler(int sig)
@@ -30,7 +31,7 @@ void sendHello()
 	  "soap.udp://239.255.255.250:3702",         // address of TS
 	  soap_wsa_rand_uuid(soap),                   // message ID
 	  NULL,                 
-	  NULL,
+	  _endpoint,
 	  NULL,
 	  _type,
 	  NULL,
@@ -51,7 +52,7 @@ void sendBye()
 	  SOAP_WSDD_ADHOC,      // mode
 	  "soap.udp://239.255.255.250:3702",         // address of TS
 	  soap_wsa_rand_uuid(soap),                   // message ID
-	  NULL,                 
+	  _endpoint,                 
 	  NULL,
 	  _type,
 	  NULL,
