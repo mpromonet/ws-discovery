@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>spring</groupId>
+	<artifactId>cxf</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
+	  
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- dependency version -->
+		<spring-version>3.1.4.RELEASE</spring-version>
+		<cxf-version>2.7.8</cxf-version>
+		<!-- plugins version -->
+		<java-version>1.6</java-version>
+		<maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
+	</properties>
+		
+	<dependencies>
+		<!-- CXF -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>${cxf-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf.services.ws-discovery</groupId>
+			<artifactId>cxf-services-ws-discovery-service</artifactId>
+			<version>${cxf-version}</version>
+		</dependency>
+		   
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring-version}</version>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<defaultGoal>tomcat:run</defaultGoal>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>${java-version}</source>
+					<target>${java-version}</target>
+				</configuration>
+			</plugin>						    
+		</plugins>
+	</build>	
+</project>

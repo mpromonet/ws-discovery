@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd 
+					http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+
+	<bean id="localhost" class="java.net.InetAddress" factory-method="getLocalHost" />
+	<bean id="publishedWebServiceUrl" class="java.lang.String">
+		<constructor-arg value="#{'http://' + localhost.hostAddress + ':8080' + servletContext.contextPath + '/webservices/hello_world'}"/>
+		<!--<constructor-arg value="#{servletContext.getRealPath('/webservices') + '/hello_world' }" />-->
+	</bean>
+
+	<jaxws:endpoint id="hello_world" implementor="HelloWorldImpl"  address="/hello_world">
+                <jaxws:properties>
+                        <entry key="publishedEndpointUrl" ><ref bean="publishedWebServiceUrl" /></entry>
+                </jaxws:properties>
+	</jaxws:endpoint>
+</beans>
