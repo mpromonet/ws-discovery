@@ -9,7 +9,7 @@ all: gen/soapC.cpp probe.exe server.exe
 
 gen/soapC.cpp: 
 	mkdir -p gen
-	$(GSOAP_PREFIX)/bin/soapcpp2 -2xa $(GSOAP_IMPORT)/wsdd10.h -I $(GSOAP_IMPORT) -d gen
+	$(GSOAP_PREFIX)/bin/soapcpp2 -Cx $(GSOAP_IMPORT)/wsdd10.h -I $(GSOAP_IMPORT) -d gen
 
 probe.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapClient.cpp gen/soapC.cpp probe.cpp
 	c++ -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
