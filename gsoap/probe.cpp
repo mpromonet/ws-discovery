@@ -24,27 +24,26 @@ int main(int argc, char** argv)
 	}		
 		
 	// send probe request
-	struct soap* soap = soap_new();
 	printf("call soap_wsdd_Probe\n");
-	int res = soap_wsdd_Probe(soap,
+	int res = soap_wsdd_Probe(serv,
 	  SOAP_WSDD_ADHOC,      // mode
 	  SOAP_WSDD_TO_TS,      // to a TS
 	  "soap.udp://239.255.255.250:3702",         // address of TS
-	  soap_wsa_rand_uuid(soap),                   // message ID
+	  soap_wsa_rand_uuid(serv),                   // message ID
 	  NULL,                 // ReplyTo
 	  NULL,
 	  NULL,
 	  "");
 	if (res != SOAP_OK)
 	{
-		soap_print_fault(soap, stderr);
+		soap_print_fault(serv, stderr);
 	}
 	
 	// listen answers
 	res = soap_wsdd_listen(serv, 5);
 	if (res != SOAP_OK)
 	{
-		soap_print_fault(soap, stderr);
+		soap_print_fault(serv, stderr);
 	}
 	return 0;
 }
