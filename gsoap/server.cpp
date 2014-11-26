@@ -69,7 +69,6 @@ int main(int argc, char** argv)
 {
 	struct soap* serv = soap_new1(SOAP_IO_UDP | SOAP_IO_KEEPALIVE); 
 	serv->bind_flags=SO_REUSEADDR;
-	serv->connect_flags = SO_BROADCAST; 
 	if (!soap_valid_socket(soap_bind(serv, NULL, port, 1000)))
 	{
 		soap_print_fault(serv, stderr);
