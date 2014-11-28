@@ -109,8 +109,8 @@ soap_wsdd_mode wsdd_event_Probe(struct soap *soap, const char *MessageID, const 
 {
 	printf("wsdd_event_Probe id=%s replyTo=%s types=%s scopes=%s\n", MessageID, ReplyTo, Types, Scopes);
 	soap_wsdd_init_ProbeMatches(soap,matches);
-	soap_wsdd_add_ProbeMatch(soap, matches, "soap.udp://239.255.255.250:3702", _type, NULL, NULL, _xaddr, _metadataVersion);
-	soap_wsdd_ProbeMatches(soap, "soap.udp://239.255.255.250:3702", soap_wsa_rand_uuid(soap) , MessageID, ReplyTo, matches);
+	soap_wsdd_add_ProbeMatch(soap, matches, _endpoint, _type, NULL, NULL, _xaddr, _metadataVersion);
+	soap_wsdd_ProbeMatches(soap, NULL, soap_wsa_rand_uuid(soap) , MessageID, ReplyTo, matches);
 	return SOAP_WSDD_ADHOC;
 }
 
