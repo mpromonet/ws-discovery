@@ -1,3 +1,14 @@
+/* ---------------------------------------------------------------------------
+** This software is in the public domain, furnished "as is", without technical
+** support, and with no warranty, express or implied, as to its usefulness for
+** any purpose.
+**
+** server.cpp
+** 
+** WS-Discovery device
+**
+** -------------------------------------------------------------------------*/
+
 #include <signal.h>
 
 #include "gen/wsdd.nsmap"
@@ -5,9 +16,10 @@
 
 const char* host = "239.255.255.250";	
 int port = 3702;
-const int _metadataVersion = 1;
+const int   _metadataVersion = 1;
 const char* _xaddr="http://localhost/service";
 const char* _type="\"http://schemas.xmlsoap.org/ws/2006/02/devprof\":device";
+const char* _scope="scope";
 const char* _endpoint="urn";
 
 bool stop = false;
@@ -32,8 +44,8 @@ void sendHello()
 	  soap_wsa_rand_uuid(soap),                   // message ID
 	  NULL,                 
 	  _endpoint,
-	  NULL,
 	  _type,
+	  _scope,
 	  NULL,
 	  _xaddr,
           _metadataVersion);
@@ -53,8 +65,8 @@ void sendBye()
 	  "soap.udp://239.255.255.250:3702",         // address of TS
 	  soap_wsa_rand_uuid(soap),                   // message ID
 	  _endpoint,                 
-	  NULL,
 	  _type,
+	  _scope,
 	  NULL,
 	  _xaddr,
           _metadataVersion);
@@ -67,20 +79,20 @@ void sendBye()
 	
 int main(int argc, char** argv)
 {
-	struct soap* serv = soap_new1(SOAP_IO_UDP | SOAP_IO_KEEPALIVE); 
+	struct soap* serv = soap_new1(SOAP_IO_UDP); 
 	serv->bind_flags=SO_REUSEADDR;
 	if (!soap_valid_socket(soap_bind(serv, NULL, port, 1000)))
 	{
 		soap_print_fault(serv, stderr);
 		exit(1);
 	}	
-
 	ip_mreq mcast; 
 	mcast.imr_multiaddr.s_addr = inet_addr(host);
 	mcast.imr_interface.s_addr = htonl(INADDR_ANY);
 	if (setsockopt(serv->master, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mcast, sizeof(mcast))<0) 
 	{
-		std::cout << "group membership failed:" << strerror(errno) << std::endl;		
+		std::cout << "group membership failed:" << strerror(errno) << std::endl;
+		exit(1);		
 	}	
 	
 	sendHello();
@@ -100,35 +112,37 @@ int main(int argc, char** argv)
 
 void wsdd_event_ProbeMatches(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, struct wsdd__ProbeMatchesType *matches)
 {
-	printf("wsdd_event_ProbeMatches nbMatch:%d\n", matches->__sizeProbeMatch);
 }
 
 void wsdd_event_ResolveMatches(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, struct wsdd__ResolveMatchType *match)
 {
-	printf("wsdd_event_ResolveMatches\n");
 }
 
 void wsdd_event_Hello(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, const char *EndpointReference, const char *Types, const char *Scopes, const char *MatchBy, const char *XAddrs, unsigned int MetadataVersion)
 {
-	printf("wsdd_event_Hello id=%s EndpointReference=%s XAddrs=%s\n", MessageID, EndpointReference, XAddrs);
+	printf("wsdd_event_Hello\tid=%s EndpointReference=%s Types=%s Scopes=%s XAddrs=%s\n", MessageID, EndpointReference, Types, Scopes, XAddrs);
 }
 
 void wsdd_event_Bye(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, const char *EndpointReference, const char *Types, const char *Scopes, const char *MatchBy, const char *XAddrs, unsigned int *MetadataVersion)
 {
-	printf("wsdd_event_Bye id=%s EndpointReference=%s XAddrs=%s\n", MessageID, EndpointReference, XAddrs);
+	printf("wsdd_event_Bye\tid=%s EndpointReference=%s Types=%s Scopes=%s XAddrs=%s\n", MessageID, EndpointReference, Types, Scopes, XAddrs);
 }
 
 soap_wsdd_mode wsdd_event_Resolve(struct soap *soap, const char *MessageID, const char *ReplyTo, const char *EndpointReference, struct wsdd__ResolveMatchType *match)
 {
-	printf("wsdd_event_Resolve  id=%s replyTo=%s\n", MessageID, ReplyTo);
+	printf("wsdd_event_Resolve\tid=%s replyTo=%s endpoint=%s\n", MessageID, ReplyTo, EndpointReference);
+	if (EndpointReference && (strcmp(EndpointReference, _endpoint) == 0) )
+	{
+		soap_wsdd_ResolveMatches(soap, NULL, soap_wsa_rand_uuid(soap), MessageID, ReplyTo, _endpoint, _type, _scope, NULL, _xaddr, _metadataVersion);	
+	}
 	return SOAP_WSDD_ADHOC;
 }
 
 soap_wsdd_mode wsdd_event_Probe(struct soap *soap, const char *MessageID, const char *ReplyTo, const char *Types, const char *Scopes, const char *MatchBy, struct wsdd__ProbeMatchesType *matches)
 {
-	printf("wsdd_event_Probe id=%s replyTo=%s types=%s scopes=%s\n", MessageID, ReplyTo, Types, Scopes);
+	printf("wsdd_event_Probe\tid=%s replyTo=%s types=%s scopes=%s\n", MessageID, ReplyTo, Types, Scopes);
 	soap_wsdd_init_ProbeMatches(soap,matches);
-	soap_wsdd_add_ProbeMatch(soap, matches, _endpoint, _type, NULL, NULL, _xaddr, _metadataVersion);
+	soap_wsdd_add_ProbeMatch(soap, matches, _endpoint, _type, _scope, NULL, _xaddr, _metadataVersion);
 	soap_wsdd_ProbeMatches(soap, NULL, soap_wsa_rand_uuid(soap) , MessageID, ReplyTo, matches);
 	return SOAP_WSDD_ADHOC;
 }
