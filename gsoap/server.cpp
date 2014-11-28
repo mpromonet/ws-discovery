@@ -98,6 +98,25 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+void wsdd_event_ProbeMatches(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, struct wsdd__ProbeMatchesType *matches)
+{
+	printf("wsdd_event_ProbeMatches nbMatch:%d\n", matches->__sizeProbeMatch);
+}
+
+void wsdd_event_ResolveMatches(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, struct wsdd__ResolveMatchType *match)
+{
+	printf("wsdd_event_ResolveMatches\n");
+}
+
+void wsdd_event_Hello(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, const char *EndpointReference, const char *Types, const char *Scopes, const char *MatchBy, const char *XAddrs, unsigned int MetadataVersion)
+{
+	printf("wsdd_event_Hello id=%s EndpointReference=%s XAddrs=%s\n", MessageID, EndpointReference, XAddrs);
+}
+
+void wsdd_event_Bye(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, const char *EndpointReference, const char *Types, const char *Scopes, const char *MatchBy, const char *XAddrs, unsigned int *MetadataVersion)
+{
+	printf("wsdd_event_Bye id=%s EndpointReference=%s XAddrs=%s\n", MessageID, EndpointReference, XAddrs);
+}
 
 soap_wsdd_mode wsdd_event_Resolve(struct soap *soap, const char *MessageID, const char *ReplyTo, const char *EndpointReference, struct wsdd__ResolveMatchType *match)
 {
