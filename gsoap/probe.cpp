@@ -14,13 +14,6 @@ int main(int argc, char** argv)
 		soap_print_fault(serv, stderr);
 		exit(1);
 	}	
-	ip_mreq mcast; 
-	mcast.imr_multiaddr.s_addr = inet_addr(host);
-	mcast.imr_interface.s_addr = htonl(INADDR_ANY);
-	if (setsockopt(serv->master, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mcast, sizeof(mcast))<0) 
-	{
-		std::cout << "group membership failed:" << strerror(errno) << std::endl;		
-	}		
 		
 	// send probe request
 	printf("call soap_wsdd_Probe\n");
