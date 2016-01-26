@@ -14,8 +14,6 @@
 #include "gen/wsdd.nsmap"
 #include "wsddapi.h"
 
-const char* host = "239.255.255.250";	
-int port = 3702;
 const int   _metadataVersion = 1;
 const char* _xaddr="http://localhost/service";
 const char* _type="\"http://schemas.xmlsoap.org/ws/2006/02/devprof\":device";
@@ -53,6 +51,7 @@ void sendHello()
 	{
 		soap_print_fault(soap, stderr);
 	}
+	soap_destroy(soap);	
 	soap_end(soap);	
 }
 
@@ -74,20 +73,37 @@ void sendBye()
 	{
 		soap_print_fault(soap, stderr);
 	}
+	soap_destroy(soap);	
 	soap_end(soap);
 }
 	
 int main(int argc, char** argv)
 {
+	int c=0;
+	while ( (c=getopt(argc, argv, "h" "r:t:s:x:")) != -1)
+	{
+		switch (c)
+		{
+			case 'r': _endpoint = optarg; break;
+			case 't': _type     = optarg; break;
+			case 's': _scope    = optarg; break;
+			case 'x': _xaddr    = optarg; break;
+			default:
+				std::cout << argv[0] << "[-r <endpoint>] [-t <type>] [-s <scope>] [-x <xaddr>]" << std::endl;
+				return -1;
+			break;
+		}
+	}
+
 	struct soap* serv = soap_new1(SOAP_IO_UDP); 
 	serv->bind_flags=SO_REUSEADDR;
-	if (!soap_valid_socket(soap_bind(serv, NULL, port, 1000)))
+	if (!soap_valid_socket(soap_bind(serv, NULL, 3702, 1000)))
 	{
 		soap_print_fault(serv, stderr);
 		exit(1);
 	}	
 	ip_mreq mcast; 
-	mcast.imr_multiaddr.s_addr = inet_addr(host);
+	mcast.imr_multiaddr.s_addr = inet_addr("239.255.255.250");
 	mcast.imr_interface.s_addr = htonl(INADDR_ANY);
 	if (setsockopt(serv->master, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mcast, sizeof(mcast))<0) 
 	{
@@ -106,6 +122,9 @@ int main(int argc, char** argv)
 
 	sendBye();
 	mainloop(serv);
+
+	soap_destroy(serv);	
+	soap_end(serv);	
 
 	return 0;
 }
