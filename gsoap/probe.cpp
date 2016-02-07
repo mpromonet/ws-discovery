@@ -18,6 +18,7 @@ int main(int argc, char** argv)
 	const char * type = NULL;
 	const char * scope = NULL;
 	int c = 0;
+	std::string url("soap.udp://239.255.255.250:3702");
 	while ((c = getopt (argc, argv, "r:t:s:")) != -1)
 	{
 		switch (c)
@@ -34,48 +35,92 @@ int main(int argc, char** argv)
 			break;
 		}
 	}
-      
-	// create soap instance
-	struct soap* serv = soap_new1(SOAP_IO_UDP); 
-	if (!soap_valid_socket(soap_bind(serv, NULL, 0, 1000)))
+	if (optind<argc)
 	{
-		soap_print_fault(serv, stderr);
-		exit(1);
-	}	
-
-	int res = 0;
-	// call resolve or probe
-	if (strlen(endpoint) == 0)
-	{		
-		res = soap_wsdd_Probe(serv,
-		  SOAP_WSDD_ADHOC,      // mode
-		  SOAP_WSDD_TO_TS,      // to a TS
-		  "soap.udp://239.255.255.250:3702",         // address of TS
-		  soap_wsa_rand_uuid(serv),                   // message ID
-		  NULL,                 // ReplyTo
-		  type,
-		  scope,
-		  NULL);
-	}
-	else
-	{	
-		// send resolve request
-		res = soap_wsdd_Resolve(serv,
-		  SOAP_WSDD_ADHOC,      // mode
-		  SOAP_WSDD_TO_TS,      // to a TS
-		  "soap.udp://239.255.255.250:3702",         // address of TS
-		  soap_wsa_rand_uuid(serv),                   // message ID
-		  NULL,                 // ReplyTo
-		  endpoint);
+		url = argv[optind];
 	}
 	
-	if (res != SOAP_OK)
-	{
-		soap_print_fault(serv, stderr);
+      	int res = 0;
+	if (url.find("soap.udp:")==0)
+	{	
+		std::cout << "to multicast" << std::endl;
+		
+		// create soap instance
+		struct soap* serv = soap_new1(SOAP_IO_UDP); 
+		if (!soap_valid_socket(soap_bind(serv, NULL, 0, 1000)))
+		{
+			soap_print_fault(serv, stderr);
+			exit(1);
+		}	
+
+	
+		// call resolve or probe
+		if (strlen(endpoint) == 0)
+		{		
+			res = soap_wsdd_Probe(serv,
+			  SOAP_WSDD_ADHOC,      // mode
+			  SOAP_WSDD_TO_TS,      // to a TS
+			  "soap.udp://239.255.255.250:3702",         // address of TS
+			  soap_wsa_rand_uuid(serv),                   // message ID
+			  NULL,                 // ReplyTo
+			  type,
+			  scope,
+			  NULL);
+		}
+		else
+		{	
+			// send resolve request
+			res = soap_wsdd_Resolve(serv,
+			  SOAP_WSDD_ADHOC,      // mode
+			  SOAP_WSDD_TO_TS,      // to a TS
+			  "soap.udp://239.255.255.250:3702",         // address of TS
+			  soap_wsa_rand_uuid(serv),                   // message ID
+			  NULL,                 // ReplyTo
+			  endpoint);
+		}
+		
+		if (res != SOAP_OK)
+		{
+			soap_print_fault(serv, stderr);
+		}
+				
+		// listen answers
+		soap_wsdd_listen(serv, -1000000);
 	}
-			
-	// listen answers
-	soap_wsdd_listen(serv, -1000000);
+	else
+	{
+		std::cout << "to proxy" << std::endl;
+		
+		struct soap* serv = soap_new(); 
+		if (strlen(endpoint) == 0)
+		{		
+			res = soap_wsdd_Probe(serv,
+			  SOAP_WSDD_MANAGED,      // mode
+			  SOAP_WSDD_TO_DP,      // to a Proxy
+			  url.c_str(),         // address of Proxy
+			  soap_wsa_rand_uuid(serv),                   // message ID
+			  NULL,                 // ReplyTo
+			  type,
+			  scope,
+			  NULL);
+		}
+		else
+		{	
+			// send resolve request
+			res = soap_wsdd_Resolve(serv,
+			  SOAP_WSDD_MANAGED,      // mode
+			  SOAP_WSDD_TO_DP,      // to a Proxy
+			  url.c_str(),         // address of Proxy
+			  soap_wsa_rand_uuid(serv),                   // message ID
+			  NULL,                 // ReplyTo
+			  endpoint);
+		}
+		
+		if (res != SOAP_OK)
+		{
+			soap_print_fault(serv, stderr);
+		}
+	}
 	
 	return 0;
 }
@@ -113,7 +158,7 @@ void printMatch(const T & match)
 
 void wsdd_event_ProbeMatches(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, struct wsdd__ProbeMatchesType *matches)
 {
-	printf("wsdd_event_ProbeMatches nbMatch:%d\n", matches->__sizeProbeMatch);
+	printf("wsdd_event_ProbeMatches tid:%s RelatesTo:%s nbMatch:%d\n", MessageID, RelatesTo, matches->__sizeProbeMatch);
         for (int i=0; i < matches->__sizeProbeMatch; ++i)
         {
                 wsdd__ProbeMatchType& elt = matches->ProbeMatch[i];
@@ -123,7 +168,7 @@ void wsdd_event_ProbeMatches(struct soap *soap, unsigned int InstanceId, const c
 
 void wsdd_event_ResolveMatches(struct soap *soap, unsigned int InstanceId, const char *SequenceId, unsigned int MessageNumber, const char *MessageID, const char *RelatesTo, struct wsdd__ResolveMatchType *match)
 {
-	printf("wsdd_event_ResolveMatches\n");
+	printf("wsdd_event_ResolveMatches tid:%s RelatesTo:%s\n", MessageID, RelatesTo);
 	printMatch(*match);
 }
 

@@ -5,7 +5,7 @@ GSOAP_PLUGINS=$(GSOAP_BASE)/plugin
 GSOAP_CFLAGS= -I gen -I $(GSOAP_PREFIX)/include -I $(GSOAP_PLUGINS)
 GSOAP_LDFLAGS= -lgsoap++ -L $(GSOAP_PREFIX)/lib/
 
-all: gen/soapC.cpp probe.exe server.exe
+all: gen/soapC.cpp probe.exe server.exe proxy.exe
 
 gen/soapC.cpp: 
 	mkdir -p gen
@@ -16,6 +16,10 @@ probe.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapClient
 	
 server.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapClient.cpp gen/soapC.cpp server.cpp
 	c++ -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
+
+proxy.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapClient.cpp gen/soapC.cpp proxy.cpp
+	c++ -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
+	
 	
 clean:
 	rm -rf *.exe gen
