@@ -1,0 +1,8 @@
+dist: trusty
+before_install:
+- sudo apt-get install -y gsoap libgsoap-dev
+language: cpp
+compiler:
+- gcc
+script:
+- make -C gsoap
