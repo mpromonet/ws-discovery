@@ -9,15 +9,15 @@ all: gen/soapC.cpp wsd-probe.exe wsd-server.exe wsd-proxy.exe
 
 gen/soapC.cpp: 
 	mkdir -p gen
-	$(GSOAP_PREFIX)/bin/soapcpp2 -Cx $(GSOAP_IMPORT)/wsdd10.h -I $(GSOAP_IMPORT) -d gen
+	$(GSOAP_PREFIX)/bin/soapcpp2 -2Cx $(GSOAP_IMPORT)/wsdd10.h -I $(GSOAP_IMPORT) -d gen
 
-wsd-probe.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapClient.cpp gen/soapC.cpp probe.cpp 
+wsd-probe.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c  gen/soapC.cpp gen/soapClient.cpp probe.cpp 
 	c++ -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
 	
-wsd-server.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapClient.cpp gen/soapC.cpp server.cpp
+wsd-server.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapC.cpp gen/soapClient.cpp wsd-server.cpp server.cpp
 	c++ -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
 
-wsd-proxy.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapClient.cpp gen/soapC.cpp proxy.cpp
+wsd-proxy.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c  gen/soapC.cpp gen/soapClient.cpp proxy.cpp
 	c++ -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
 	
 	
