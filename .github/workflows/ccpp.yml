@@ -9,6 +9,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: update
+      run: apt install -y gsoap libgsoap-dev
     - name: make
       run: make -C gsoap
 
