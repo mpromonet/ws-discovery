@@ -11,7 +11,7 @@ gen:
 	mkdir -p gen
 
 gen/soapC.cpp: gen
-	$(GSOAP_PREFIX)/bin/soapcpp2 -2LCx $(GSOAP_IMPORT)/wsdd10.h -I $(GSOAP_IMPORT) -d gen
+	$(GSOAP_PREFIX)/bin/soapcpp2 -2LCx $(GSOAP_IMPORT)/wsdd10.h -d gen
 
 libwsdd.a: gen/soapC.cpp gen/soapClient.cpp wsd-server.cpp
 	mkdir -p .objs
