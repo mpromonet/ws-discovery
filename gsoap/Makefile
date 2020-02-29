@@ -5,23 +5,34 @@ GSOAP_PLUGINS=$(GSOAP_BASE)/plugin
 GSOAP_CFLAGS= -I gen -I $(GSOAP_PREFIX)/include -I $(GSOAP_PLUGINS)
 GSOAP_LDFLAGS= -lgsoap++ -L $(GSOAP_PREFIX)/lib/
 
-all: gen/soapC.cpp wsd-probe.exe wsd-server.exe wsd-proxy.exe
+all: gen wsd-probe.exe wsd-server.exe wsd-proxy.exe
 
-gen/soapC.cpp: 
+gen:
 	mkdir -p gen
-	$(GSOAP_PREFIX)/bin/soapcpp2 -2Cx $(GSOAP_IMPORT)/wsdd10.h -I $(GSOAP_IMPORT) -d gen
+
+gen/soapC.cpp: gen
+	$(GSOAP_PREFIX)/bin/soapcpp2 -2LCx $(GSOAP_IMPORT)/wsdd10.h -I $(GSOAP_IMPORT) -d gen
+
+libwsdd.a: gen/soapC.cpp gen/soapClient.cpp wsd-server.cpp
+	mkdir -p .objs
+	$(CXX) -o .objs/wsddapi.o -c $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_CFLAGS)
+	$(CXX) -o .objs/wsaapi.o -c $(GSOAP_PLUGINS)/wsaapi.c $(GSOAP_CFLAGS)
+	$(CXX) -o .objs/soapC.o -c gen/soapC.cpp $(GSOAP_CFLAGS)
+	$(CXX) -o .objs/soapClient.o -c gen/soapClient.cpp $(GSOAP_CFLAGS)
+	$(CXX) -o .objs/wsd-server.o -c wsd-server.cpp $(GSOAP_CFLAGS)
+	$(AR) rcs $@ .objs/*.o
 
 wsd-probe.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c  gen/soapC.cpp gen/soapClient.cpp probe.cpp 
-	c++ -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
+	$(CXX) -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
 	
-wsd-server.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapC.cpp gen/soapClient.cpp wsd-server.cpp server.cpp
-	c++ -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
+wsd-server.exe: server.cpp libwsdd.a
+	$(CXX) -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
 
 wsd-proxy.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c  gen/soapC.cpp gen/soapClient.cpp proxy.cpp
-	c++ -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
+	$(CXX) -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
 	
 	
 clean:
-	rm -rf *.exe gen
+	rm -rf *.exe gen .objs
 
 
