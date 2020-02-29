@@ -9,7 +9,6 @@
 **
 ** -------------------------------------------------------------------------*/
 
-#include "wsdd.nsmap"
 #include "wsd-server.h"
 
 int sendHello(soap* serv)

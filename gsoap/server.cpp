@@ -11,6 +11,7 @@
 
 #include <signal.h>
 
+#include "wsdd.nsmap"
 #include "wsd-server.h"
 
 const int   _metadataVersion = 1;
