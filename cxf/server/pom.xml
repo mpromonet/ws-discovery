@@ -9,12 +9,12 @@
 	  
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+                <maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
 		<!-- dependency version -->
 		<spring-version>3.1.4.RELEASE</spring-version>
-		<cxf-version>2.7.8</cxf-version>
-		<!-- plugins version -->
-		<java-version>1.6</java-version>
-		<maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
+		<cxf-version>3.3.1</cxf-version>
+		<ws-version>2.3.0</ws-version>
 	</properties>
 		
 	<dependencies>
@@ -29,6 +29,12 @@
 			<artifactId>cxf-services-ws-discovery-service</artifactId>
 			<version>${cxf-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.ws</groupId>
+			<artifactId>jaxws-ri</artifactId>
+			<version>${ws-version}</version>
+			<type>pom</type>
+		</dependency>
 		   
 		<!-- Spring -->
 		<dependency>
@@ -40,16 +46,5 @@
 	
 	<build>
 		<defaultGoal>tomcat:run</defaultGoal>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
-				<configuration>
-					<source>${java-version}</source>
-					<target>${java-version}</target>
-				</configuration>
-			</plugin>						    
-		</plugins>
 	</build>	
 </project>
