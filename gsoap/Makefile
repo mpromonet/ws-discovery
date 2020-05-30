@@ -23,7 +23,7 @@ libwsdd.a: wsd-server.cpp gen/soapC.cpp gen/soapClient.cpp
 wsd-probe.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapC.cpp gen/soapClient.cpp probe.cpp 
 	$(CXX) -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
 	
-wsd-server.exe: server.cpp gen/soapC.cpp libwsdd.a
+wsd-server.exe: server.cpp $(GSOAP_PLUGINS)/wsaapi.c gen/soapC.cpp libwsdd.a
 	$(CXX) -g -o $@ $^ $(GSOAP_LDFLAGS) $(GSOAP_CFLAGS) 
 
 wsd-proxy.exe:   $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_PLUGINS)/wsaapi.c gen/soapC.cpp gen/soapClient.cpp proxy.cpp
