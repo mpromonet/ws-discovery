@@ -13,7 +13,7 @@ gen:
 gen/soapC.cpp: gen
 	$(GSOAP_PREFIX)/bin/soapcpp2 -2LCx $(GSOAP_IMPORT)/wsdd10.h -d gen
 
-libwsdd.a: wsd-server.cpp
+libwsdd.a: wsd-server.cpp gen/soapC.cpp
 	mkdir -p .objs
 	$(CXX) -o .objs/wsddapi.o -c $(GSOAP_PLUGINS)/wsddapi.c $(GSOAP_CFLAGS)
 	$(CXX) -o .objs/wsaapi.o -c $(GSOAP_PLUGINS)/wsaapi.c $(GSOAP_CFLAGS)
