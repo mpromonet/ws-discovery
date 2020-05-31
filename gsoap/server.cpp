@@ -14,13 +14,12 @@
 #include "wsdd.nsmap"
 #include "wsd-server.h"
 
-const int   _metadataVersion = 1;
 const char* _xaddr="http://localhost/service";
 const char* _type="\"http://schemas.xmlsoap.org/ws/2006/02/devprof\":device";
-const char* _scope="scope";
-const char* _endpoint="urn";
+const char* _scope="";
+const char* _endpoint="urn:endpoint";
 
-wsdconf conf(_xaddr, _type);
+wsdconf conf(_xaddr, _type, _scope, _endpoint);
 
 void sighandler(int sig)
 {
@@ -31,7 +30,7 @@ void sighandler(int sig)
 int main(int argc, char** argv)
 {
 	int c=0;
-	while ( (c=getopt(argc, argv, "h" "r:t:s:x:")) != -1)
+	while ( (c=getopt(argc, argv, "h" "r:t:s:x:m:")) != -1)
 	{
 		switch (c)
 		{
@@ -39,8 +38,9 @@ int main(int argc, char** argv)
 			case 't': conf.m_type     = optarg; break;
 			case 's': conf.m_scope    = optarg; break;
 			case 'x': conf.m_xaddr    = optarg; break;
+			case 'm': conf.m_metadataVersion  = atoi(optarg); break;
 			default:
-				std::cout << argv[0] << "[-r <endpoint>] [-t <type>] [-s <scope>] [-x <xaddr>]" << std::endl;
+				std::cout << argv[0] << "[-r <endpoint>] [-t <type>] [-s <scope>] [-x <xaddr>] [-m <metadata version>" << std::endl;
 				return -1;
 			break;
 		}
