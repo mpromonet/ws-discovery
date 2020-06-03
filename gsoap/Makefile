@@ -1,9 +1,11 @@
-GSOAP_PREFIX=/usr
+SYSROOT?=$(shell $(CXX) --print-sysroot)
+GSOAP_PREFIX?=$(SYSROOT)/usr
 GSOAP_BASE=$(GSOAP_PREFIX)/share/gsoap
 GSOAP_IMPORT=$(GSOAP_BASE)/import
 GSOAP_PLUGINS=$(GSOAP_BASE)/plugin
 GSOAP_CFLAGS= -I gen -I $(GSOAP_PREFIX)/include -I $(GSOAP_PLUGINS)
 GSOAP_LDFLAGS= -lgsoap++ -L $(GSOAP_PREFIX)/lib/
+GSOAP_BIN?=$(GSOAP_PREFIX)/bin
 
 all: gen wsd-probe.exe wsd-server.exe wsd-proxy.exe
 
@@ -11,7 +13,7 @@ gen:
 	mkdir -p gen
 
 gen/soapC.cpp: gen
-	$(GSOAP_PREFIX)/bin/soapcpp2 -2LCx $(GSOAP_IMPORT)/wsdd10.h -d gen
+	$(GSOAP_BIN)/soapcpp2 -2LCx $(GSOAP_IMPORT)/wsdd10.h -d gen
 
 libwsdd.a: wsd-server.cpp gen/soapC.cpp gen/soapClient.cpp
 	mkdir -p .objs
