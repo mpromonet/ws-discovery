@@ -12,7 +12,7 @@
                 <maven.compiler.source>1.6</maven.compiler.source>
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<!-- dependency version -->
-		<spring-version>3.2.18.RELEASE</spring-version>
+		<spring-version>6.0.0</spring-version>
 		<cxf-version>3.3.1</cxf-version>
 		<ws-version>2.3.0</ws-version>
 	</properties>
